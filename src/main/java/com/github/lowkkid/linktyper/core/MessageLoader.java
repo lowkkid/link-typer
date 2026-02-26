@@ -7,16 +7,11 @@ import java.util.regex.*;
 
 public class MessageLoader {
 
-    private static final String MULTI_MARKER  = "#multi";
-    private static final Pattern VARIATION    = Pattern.compile("\\{\\{([^}]+)}}");
-    private static final Random  RANDOM       = new Random();
+    private static final String MULTI_MARKER = "#multi";
+    private static final String PART_MARKER  = "[part]";
+    private static final Pattern VARIATION   = Pattern.compile("\\{\\{([^}]+)}}");
+    private static final Random  RANDOM      = new Random();
 
-    /**
-     * Loads a file and returns a generated message.
-     * - Plain file: returns content as-is.
-     * - #multi file: picks a weighted random line, resolves {{a/b}} variations.
-     * Throws MessageLoadException with a human-readable message on parse errors.
-     */
     public static String load(Path file) throws IOException, MessageLoadException {
         String content = Files.readString(file).stripTrailing();
 
@@ -29,47 +24,98 @@ public class MessageLoader {
             throw new MessageLoadException("File is marked #multi but contains no text lines.");
         }
 
-        List<String> texts   = new ArrayList<>();
+        // проверяем есть ли [part] секции
+        boolean hasParts = lines.stream().anyMatch(l -> l.strip().equalsIgnoreCase(PART_MARKER));
+
+        if (hasParts) {
+            return generateFromParts(lines);
+        } else {
+            return generateFromLines(lines.subList(1, lines.size()), "file");
+        }
+    }
+
+    // ── multi без parts — старое поведение ────────────────────────────────
+
+    private static String generateFromLines(List<String> lines, String context)
+            throws MessageLoadException {
+        List<String>  texts   = new ArrayList<>();
         List<Integer> weights = new ArrayList<>();
 
-        for (int i = 1; i < lines.size(); i++) {
+        for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            if (line.isBlank()) continue;
+            if (line.isBlank() || line.strip().equalsIgnoreCase(PART_MARKER)) continue;
 
-            String text;
-            int weight;
-
-            int sep = line.lastIndexOf("||");
-            if (sep != -1) {
-                text = line.substring(0, sep).stripTrailing();
-                String weightStr = line.substring(sep + 2).strip();
-                try {
-                    weight = Integer.parseInt(weightStr);
-                    if (weight <= 0) throw new MessageLoadException(
-                            "Line " + (i + 1) + ": weight must be a positive integer, got: " + weightStr);
-                } catch (NumberFormatException e) {
-                    throw new MessageLoadException(
-                            "Line " + (i + 1) + ": invalid weight '" + weightStr + "' — must be a number.");
-                }
-            } else {
-                text   = line;
-                weight = 1;
-            }
-
-            if (text.isBlank()) {
-                throw new MessageLoadException("Line " + (i + 1) + ": text is empty before '||'.");
-            }
-
-            texts.add(text);
-            weights.add(weight);
+            parseLine(line, i + 1, texts, weights, context);
         }
 
         if (texts.isEmpty()) {
-            throw new MessageLoadException("No valid lines found in #multi file.");
+            throw new MessageLoadException("No valid lines found in " + context + ".");
         }
 
-        String chosen = pickWeighted(texts, weights);
-        return resolveVariations(chosen);
+        return resolveVariations(pickWeighted(texts, weights));
+    }
+
+    // ── multi с parts ──────────────────────────────────────────────────────
+
+    private static String generateFromParts(List<String> lines) throws MessageLoadException {
+        // разбиваем на секции по [part]
+        List<List<String>> parts = new ArrayList<>();
+        List<String> current = null;
+
+        for (String line : lines) {
+            if (line.strip().equalsIgnoreCase(PART_MARKER)) {
+                current = new ArrayList<>();
+                parts.add(current);
+            } else if (current != null && !line.isBlank()) {
+                current.add(line);
+            }
+        }
+
+        if (parts.isEmpty()) {
+            throw new MessageLoadException("No [part] sections found after #multi.");
+        }
+
+        List<String> results = new ArrayList<>();
+        for (int i = 0; i < parts.size(); i++) {
+            String partLabel = "[part] #" + (i + 1);
+            results.add(generateFromLines(parts.get(i), partLabel));
+        }
+
+        return String.join(" ", results);
+    }
+
+    // ── helpers ────────────────────────────────────────────────────────────
+
+    private static void parseLine(String line, int lineNum,
+                                  List<String> texts, List<Integer> weights,
+                                  String context) throws MessageLoadException {
+        String text;
+        int weight;
+
+        int sep = line.lastIndexOf("||");
+        if (sep != -1) {
+            text = line.substring(0, sep).stripTrailing();
+            String weightStr = line.substring(sep + 2).strip();
+            try {
+                weight = Integer.parseInt(weightStr);
+                if (weight <= 0) throw new MessageLoadException(
+                        context + ", line " + lineNum + ": weight must be positive, got: " + weightStr);
+            } catch (NumberFormatException e) {
+                throw new MessageLoadException(
+                        context + ", line " + lineNum + ": invalid weight '" + weightStr + "'.");
+            }
+        } else {
+            text   = line;
+            weight = 1;
+        }
+
+        if (text.isBlank()) {
+            throw new MessageLoadException(
+                    context + ", line " + lineNum + ": text is empty before '||'.");
+        }
+
+        texts.add(text);
+        weights.add(weight);
     }
 
     private static String pickWeighted(List<String> texts, List<Integer> weights) {
@@ -80,7 +126,7 @@ public class MessageLoader {
             cum += weights.get(i);
             if (roll < cum) return texts.get(i);
         }
-        return texts.get(texts.size() - 1); // fallback, should never reach
+        return texts.get(texts.size() - 1);
     }
 
     private static String resolveVariations(String text) {
@@ -89,11 +135,9 @@ public class MessageLoader {
         while (m.find()) {
             String[] options = m.group(1).split("/", -1);
             if (options.length < 2) {
-                // malformed {{x}} with no slash — leave as-is
                 m.appendReplacement(sb, Matcher.quoteReplacement(m.group(0)));
             } else {
-                String picked = options[RANDOM.nextInt(options.length)];
-                m.appendReplacement(sb, Matcher.quoteReplacement(picked));
+                m.appendReplacement(sb, Matcher.quoteReplacement(options[RANDOM.nextInt(options.length)]));
             }
         }
         m.appendTail(sb);
