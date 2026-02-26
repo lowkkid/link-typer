@@ -1,6 +1,9 @@
 package com.github.lowkkid.linktyper.ui;
 
 import com.github.lowkkid.linktyper.core.KeybindingConfig;
+import com.github.lowkkid.linktyper.core.MessageLoader;
+import java.io.IOException;
+import java.nio.file.Path;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.materialdesign2.*;
 import org.kordamp.ikonli.swing.FontIcon;
@@ -103,6 +106,7 @@ public class MainFrame extends JFrame {
                 FontIcon.of(MaterialDesignS.SHUFFLE_VARIANT, ICON_SM, Color.WHITE));
         styleAccentButton(generateButton);
         generateButton.setEnabled(false);
+        generateButton.addActionListener(e -> generateMessage());
 
         JPanel genRow = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         genRow.setOpaque(false);
@@ -309,5 +313,23 @@ public class MainFrame extends JFrame {
 
     public String getMessage() {
         return messageArea.getText();
+    }
+
+    private void generateMessage() {
+        String path = filePathField.getText();
+        if (path.isBlank() || path.equals("No file selected")) return;
+
+        try {
+            String text = MessageLoader.load(Path.of(path));
+            messageArea.setText(text);
+        } catch (MessageLoader.MessageLoadException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to parse file:\n" + ex.getMessage(),
+                    "Parse Error", JOptionPane.ERROR_MESSAGE);
+        } catch (IOException ex) {
+            JOptionPane.showMessageDialog(this,
+                    "Could not read file:\n" + ex.getMessage(),
+                    "File Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
