@@ -1,5 +1,8 @@
 package com.github.lowkkid.linktyper.ui;
 
+import com.github.lowkkid.linktyper.core.ConfigManager;
+import com.github.lowkkid.linktyper.core.KeybindingConfig;
+import com.github.lowkkid.linktyper.core.XBindKeysManager;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.materialdesign2.*;
 import org.kordamp.ikonli.swing.FontIcon;
@@ -17,11 +20,13 @@ public class SettingsDialog extends JDialog {
     private KeybindField pauseField;
     private KeybindField stopField;
 
-    private final MainFrame owner;
+    private final MainFrame        owner;
+    private final KeybindingConfig config;
 
-    public SettingsDialog(MainFrame owner) {
+    public SettingsDialog(MainFrame owner, KeybindingConfig config) {
         super(owner, "Settings", true);
-        this.owner = owner;
+        this.owner  = owner;
+        this.config = config;
         setUndecorated(true);
 
         JPanel root = new JPanel(new BorderLayout());
@@ -73,9 +78,9 @@ public class SettingsDialog extends JDialog {
         fc.weightx = 1.0;
         fc.insets  = new Insets(6, 0, 6, 0);
 
-        startField = new KeybindField("Ctrl+Shift+S");
-        pauseField = new KeybindField("Ctrl+Shift+P");
-        stopField  = new KeybindField("Ctrl+Shift+X");
+        startField = new KeybindField(config.getStartLabel());
+        pauseField = new KeybindField(config.getPauseLabel());
+        stopField  = new KeybindField(config.getStopLabel());
 
         addRow(panel, MaterialDesignP.PLAY_CIRCLE_OUTLINE,  "Start", startField, lc, fc, 0);
         addRow(panel, MaterialDesignP.PAUSE_CIRCLE_OUTLINE, "Pause", pauseField, lc, fc, 1);
@@ -125,13 +130,98 @@ public class SettingsDialog extends JDialog {
     }
 
     private void onSave() {
+        if (startField.capturedCombo != null) config.setStartCombo(startField.capturedCombo);
+        if (pauseField.capturedCombo != null) config.setPauseCombo(pauseField.capturedCombo);
+        if (stopField.capturedCombo  != null) config.setStopCombo(stopField.capturedCombo);
+
+        ConfigManager.save(config);
+
+        try {
+            XBindKeysManager.writeConfig(config);
+            XBindKeysManager.reloadOrStart();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to update xbindkeys: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
         owner.updateKeybindLabels(
-                startField.getText(),
-                pauseField.getText(),
-                stopField.getText());
+                config.getStartLabel(),
+                config.getPauseLabel(),
+                config.getStopLabel());
         dispose();
     }
 
+    // ── KeybindField ───────────────────────────────────────────────────────
+    class KeybindField extends JTextField {
+
+        String capturedCombo = null; // xbindkeys format: "control+shift+s"
+
+        KeybindField(String initial) {
+            super(initial, 16);
+            setEditable(false);
+            setBackground(BG_INPUT);
+            setForeground(TEXT_PRI);
+            setFont(FONT_MONO.deriveFont(12f));
+            setHorizontalAlignment(CENTER);
+            applyBorder(BORDER);
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) { startListening(); }
+            });
+
+            addKeyListener(new KeyAdapter() {
+                public void keyPressed(KeyEvent e) {
+                    int code = e.getKeyCode();
+                    // ignore lone modifiers
+                    if (code == KeyEvent.VK_CONTROL || code == KeyEvent.VK_SHIFT
+                            || code == KeyEvent.VK_ALT || code == KeyEvent.VK_META) return;
+
+                    StringBuilder combo   = new StringBuilder(); // xbindkeys format
+                    StringBuilder display = new StringBuilder(); // human-readable
+
+                    if (e.isControlDown()) { combo.append("control+"); display.append("Ctrl+"); }
+                    if (e.isShiftDown())   { combo.append("shift+");   display.append("Shift+"); }
+                    if (e.isAltDown())     { combo.append("alt+");     display.append("Alt+"); }
+
+                    String keyName = KeyEvent.getKeyText(code).toLowerCase();
+                    combo.append(keyName);
+                    display.append(KeyEvent.getKeyText(code));
+
+                    capturedCombo = combo.toString();
+                    setText(display.toString());
+                    stopListening();
+                }
+            });
+
+            addFocusListener(new FocusAdapter() {
+                public void focusLost(FocusEvent e) { stopListening(); }
+            });
+        }
+
+        void startListening() {
+            setBackground(new Color(28, 28, 48));
+            applyBorder(ACCENT);
+            setText("Press keys…");
+            setForeground(TEXT_MUTED);
+            requestFocusInWindow();
+        }
+
+        void stopListening() {
+            setBackground(BG_INPUT);
+            setForeground(TEXT_PRI);
+            applyBorder(BORDER);
+        }
+
+        private void applyBorder(Color color) {
+            setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(color, 1),
+                    new EmptyBorder(5, 10, 5, 10)));
+        }
+    }
+
+    // ── helpers ────────────────────────────────────────────────────────────
     private JButton iconButton(Icon icon) {
         JButton btn = new JButton(icon);
         btn.setBackground(null);
@@ -152,10 +242,9 @@ public class SettingsDialog extends JDialog {
         btn.setOpaque(true);
         btn.setIconTextGap(7);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        Color normal = ACCENT;
         btn.addMouseListener(new MouseAdapter() {
             public void mouseEntered(MouseEvent e) { btn.setBackground(ACCENT_HOV); }
-            public void mouseExited(MouseEvent e)  { btn.setBackground(normal); }
+            public void mouseExited(MouseEvent e)  { btn.setBackground(ACCENT); }
         });
     }
 
@@ -180,66 +269,5 @@ public class SettingsDialog extends JDialog {
             }
             public void mouseExited(MouseEvent e) { btn.setIcon(original); }
         });
-    }
-
-    static class KeybindField extends JTextField {
-
-        KeybindField(String initial) {
-            super(initial, 16);
-            setEditable(false);
-            setBackground(BG_INPUT);
-            setForeground(TEXT_PRI);
-            setFont(FONT_MONO.deriveFont(12f));
-            setHorizontalAlignment(CENTER);
-            applyBorder(BORDER);
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-
-            addMouseListener(new MouseAdapter() {
-                public void mouseClicked(MouseEvent e) { startListening(); }
-            });
-            addKeyListener(new KeyAdapter() {
-                public void keyPressed(KeyEvent e) { captureCombo(e); }
-            });
-            addFocusListener(new FocusAdapter() {
-                public void focusLost(FocusEvent e) { stopListening(); }
-            });
-        }
-
-        private void startListening() {
-            setBackground(new Color(28, 28, 48));
-            applyBorder(ACCENT);
-            setText("Press keys…");
-            setForeground(TEXT_MUTED);
-            requestFocusInWindow();
-        }
-
-        private void stopListening() {
-            setBackground(BG_INPUT);
-            setForeground(TEXT_PRI);
-            applyBorder(BORDER);
-        }
-
-        private void applyBorder(Color color) {
-            setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createLineBorder(color, 1),
-                    new EmptyBorder(5, 10, 5, 10)));
-        }
-
-        private void captureCombo(KeyEvent e) {
-            int mod = e.getModifiersEx();
-            int key = e.getKeyCode();
-            if (key == KeyEvent.VK_CONTROL || key == KeyEvent.VK_SHIFT
-                    || key == KeyEvent.VK_ALT || key == KeyEvent.VK_META) return;
-
-            StringBuilder sb = new StringBuilder();
-            if ((mod & KeyEvent.CTRL_DOWN_MASK)  != 0) sb.append("Ctrl+");
-            if ((mod & KeyEvent.SHIFT_DOWN_MASK) != 0) sb.append("Shift+");
-            if ((mod & KeyEvent.ALT_DOWN_MASK)   != 0) sb.append("Alt+");
-            sb.append(KeyEvent.getKeyText(key));
-
-            setText(sb.toString());
-            stopListening();
-            transferFocus();
-        }
     }
 }

@@ -1,5 +1,6 @@
 package com.github.lowkkid.linktyper.ui;
 
+import com.github.lowkkid.linktyper.core.KeybindingConfig;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.materialdesign2.*;
 import org.kordamp.ikonli.swing.FontIcon;
@@ -22,7 +23,10 @@ public class MainFrame extends JFrame {
     private JLabel     pauseBindLabel;
     private JLabel     stopBindLabel;
 
-    public MainFrame() {
+    private final KeybindingConfig    config;
+
+    public MainFrame(KeybindingConfig config) {
+        this.config  = config;
         setTitle("LinkTyper");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
@@ -56,9 +60,6 @@ public class MainFrame extends JFrame {
         JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
         controls.setOpaque(false);
 
-        JButton minimizeBtn = iconButton(FontIcon.of(MaterialDesignW.WINDOW_MINIMIZE, ICON_MD, TEXT_SEC));
-        minimizeBtn.addActionListener(e -> setState(JFrame.ICONIFIED));
-        hoverIconColor(minimizeBtn, TEXT_PRI);
         JButton settingsBtn = iconButton(FontIcon.of(MaterialDesignC.COG_OUTLINE, ICON_MD, TEXT_SEC));
         JButton closeBtn    = iconButton(FontIcon.of(MaterialDesignW.WINDOW_CLOSE, ICON_MD, TEXT_SEC));
 
@@ -67,7 +68,6 @@ public class MainFrame extends JFrame {
         hoverIconColor(closeBtn, DANGER);
         hoverIconColor(settingsBtn, TEXT_PRI);
 
-        controls.add(minimizeBtn);
         controls.add(settingsBtn);
         controls.add(closeBtn);
 
@@ -143,7 +143,6 @@ public class MainFrame extends JFrame {
                 new EmptyBorder(8, 12, 8, 12)));
         panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE));
 
-
         panel.add(hintStep("1", MaterialDesignT.TEXT_BOX_OUTLINE,
                 "Write your message or generate one from a file"));
         panel.add(Box.createVerticalStrut(5));
@@ -182,9 +181,9 @@ public class MainFrame extends JFrame {
         bar.setBackground(BG_SURFACE);
         bar.setBorder(new MatteBorder(1, 0, 0, 0, BORDER));
 
-        startBindLabel = keybindLabel(MaterialDesignP.PLAY_CIRCLE_OUTLINE,  "Ctrl+Shift+S");
-        pauseBindLabel = keybindLabel(MaterialDesignP.PAUSE_CIRCLE_OUTLINE, "Ctrl+Shift+P");
-        stopBindLabel  = keybindLabel(MaterialDesignS.STOP_CIRCLE_OUTLINE,  "Ctrl+Shift+X");
+        startBindLabel = keybindLabel(MaterialDesignP.PLAY_CIRCLE_OUTLINE,  config.getStartLabel());
+        pauseBindLabel = keybindLabel(MaterialDesignP.PAUSE_CIRCLE_OUTLINE, config.getPauseLabel());
+        stopBindLabel  = keybindLabel(MaterialDesignS.STOP_CIRCLE_OUTLINE,  config.getStopLabel());
 
         bar.add(startBindLabel);
         bar.add(separator());
@@ -299,12 +298,16 @@ public class MainFrame extends JFrame {
     }
 
     private void openSettings() {
-        new SettingsDialog(this).setVisible(true);
+        new SettingsDialog(this, config).setVisible(true);
     }
 
     public void updateKeybindLabels(String start, String pause, String stop) {
         startBindLabel.setText(start);
         pauseBindLabel.setText(pause);
         stopBindLabel.setText(stop);
+    }
+
+    public String getMessage() {
+        return messageArea.getText();
     }
 }
