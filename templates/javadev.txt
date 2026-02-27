@@ -1,14 +1,13 @@
 #multi
 [part]
-Hey, saw you're also in the Java ecosystem ({{banging out code/building cool stuff}}).
+Hey, saw you're also in the Java ecosystem {{banging out code/building cool stuff}}.
 Hey, another Java senior {{in my feed/on my radar}} — nice.
-Popped up in my feed {{as a fellow dev/with your recent post}} — decided to connect.
-Saw your post in my feed {{about Java/on tech}} — liked it.
+Popped up in my feed as a fellow dev — decided to connect.
 Just expanding my network {{with fellow devs/in the Java space}}.
 Your profile came up {{in my suggestions/as a recommended connection}}.
 Noticed we share {{quite a few connections/the same Java communities}}.
 Hey, always appreciate {{seeing seasoned devs/familiar faces}} around here.
-Saw you're deep into the {{JVM ecosystem/backend architecture}} too.
+Hello, saw you're deep into the {{JVM ecosystem/backend architecture}} too.
 Connecting with {{local Java devs/folks from the industry}}.
 
 [part]
@@ -23,7 +22,7 @@ Just building out my network with {{solid people/other architects}}.
 Helps to stay in the loop with {{what's happening/trends}} in the industry.
 Better to know people {{before you need them/in the same boat}}.
 
-[part]
+[part 0.3]
 Let's {{stay in touch/connect here}}. || 1
 Will be cool to {{follow your journey/see what you're up to}}. || 1
 Catch you {{in the feed/around}}. || 2

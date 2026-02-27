@@ -8,7 +8,8 @@ import java.util.regex.*;
 public class MessageLoader {
 
     private static final String MULTI_MARKER = "#multi";
-    private static final String PART_MARKER  = "[part]";
+    private static final Pattern PART_HEADER = Pattern.compile(
+            "\\[part(?:\\s+(\\d*\\.?\\d+))?]", Pattern.CASE_INSENSITIVE);
     private static final Pattern VARIATION   = Pattern.compile("\\{\\{([^}]+)}}");
     private static final Random  RANDOM      = new Random();
 
@@ -25,7 +26,7 @@ public class MessageLoader {
         }
 
         // проверяем есть ли [part] секции
-        boolean hasParts = lines.stream().anyMatch(l -> l.strip().equalsIgnoreCase(PART_MARKER));
+        boolean hasParts = lines.stream().anyMatch(l -> PART_HEADER.matcher(l.strip()).matches());
 
         if (hasParts) {
             return generateFromParts(lines);
@@ -43,7 +44,7 @@ public class MessageLoader {
 
         for (int i = 0; i < lines.size(); i++) {
             String line = lines.get(i);
-            if (line.isBlank() || line.strip().equalsIgnoreCase(PART_MARKER)) continue;
+            if (line.isBlank() || PART_HEADER.matcher(line.strip()).matches()) continue;
 
             parseLine(line, i + 1, texts, weights, context);
         }
@@ -55,36 +56,51 @@ public class MessageLoader {
         return resolveVariations(pickWeighted(texts, weights));
     }
 
-    // ── multi с parts ──────────────────────────────────────────────────────
-
     private static String generateFromParts(List<String> lines) throws MessageLoadException {
-        // разбиваем на секции по [part]
-        List<List<String>> parts = new ArrayList<>();
-        List<String> current = null;
+        List<List<String>>  partLines   = new ArrayList<>();
+        List<Double>        partChances = new ArrayList<>();
+        List<String>        current     = null;
 
         for (String line : lines) {
-            if (line.strip().equalsIgnoreCase(PART_MARKER)) {
+            Matcher m = PART_HEADER.matcher(line.strip());
+            if (m.matches()) {
                 current = new ArrayList<>();
-                parts.add(current);
+                partLines.add(current);
+
+                String chanceStr = m.group(1);
+                if (chanceStr != null) {
+                    double chance = Double.parseDouble(chanceStr);
+                    if (chance < 0 || chance > 1) throw new MessageLoadException(
+                            "[part] chance must be between 0 and 1, got: " + chanceStr);
+                    partChances.add(chance);
+                } else {
+                    partChances.add(1.0); // всегда включается
+                }
             } else if (current != null && !line.isBlank()) {
                 current.add(line);
             }
         }
 
-        if (parts.isEmpty()) {
+        if (partLines.isEmpty()) {
             throw new MessageLoadException("No [part] sections found after #multi.");
         }
 
         List<String> results = new ArrayList<>();
-        for (int i = 0; i < parts.size(); i++) {
-            String partLabel = "[part] #" + (i + 1);
-            results.add(generateFromLines(parts.get(i), partLabel));
+        for (int i = 0; i < partLines.size(); i++) {
+            double chance = partChances.get(i);
+            if (chance >= 1.0 || RANDOM.nextDouble() < chance) {
+                String partLabel = "[part] #" + (i + 1);
+                results.add(generateFromLines(partLines.get(i), partLabel));
+            }
+        }
+
+        if (results.isEmpty()) {
+            throw new MessageLoadException(
+                    "All parts were skipped by chance — try again or increase probabilities.");
         }
 
         return String.join(" ", results);
     }
-
-    // ── helpers ────────────────────────────────────────────────────────────
 
     private static void parseLine(String line, int lineNum,
                                   List<String> texts, List<Integer> weights,

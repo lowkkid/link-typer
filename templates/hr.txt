@@ -1,0 +1,35 @@
+#multi
+[part]
+Hey, {{Java senior/experienced backend dev}} here.
+{{Senior Java developer/Java architect}} here.
+Java {{backend engineer/developer}} reaching out.
+Just a {{Java dev/tech lead}} looking to connect.
+Hello — {{Java specialist/software engineer}} on your radar.
+Hi there, {{backend engineer/JVM dev}} from the Java ecosystem.
+Greetings — {{seasoned Java developer/software craftsman}} here.
+Hey — {{Java enthusiast/backend specialist}} from the industry.
+Just another {{Java pro/tech person}} expanding the network.
+Hello from a {{fellow developer/Java backend engineer}}.
+
+[part]
+Let's connect to {{keep in touch/stay in the loop}} for future opportunities.
+Adding you to my network — {{you never know/just in case}} you might need a Java dev.
+Connecting {{just in case/for future reference}} if something relevant pops up.
+Staying on your radar — feel free to {{reach out/DM me}} if you ever need a Java senior.
+No {{open applications/active search}}, just keeping the connection warm.
+Thought I'd {{get on your radar/say hello}} — you never know what the future holds.
+Not looking {{right now/actively}}, but always good to have connections.
+Building out my network with {{good recruiters/industry people}} — you never know.
+Just putting myself out there — {{in case/if ever}} something interesting crosses your desk.
+Connecting proactively — {{better to connect now/never know}} when timing aligns.
+
+[part]
+Feel free to {{reach out/ping me}} if you have something relevant.
+Reach out {{anytime/whenever}} if you're hiring Java folks.
+Just in case — {{my inbox is open/always happy to chat}}.
+Happy to {{hop on a call/connect further}} if anything aligns.
+Always open to {{interesting roles/hearing about opportunities}}.
+Let me know if you ever need {{a senior dev/Java expertise}}.
+{{DM's open/Happy to chat}} if something relevant comes up.
+Keep me in mind for {{future roles/senior positions}}.
+{{No pressure/Just connecting}} — we'll talk when the time is right.
