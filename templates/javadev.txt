@@ -1,14 +1,20 @@
 #multi
 [part]
-Hey, saw you're also in the Java ecosystem {{banging out code/building cool stuff}}.
-Hey, another Java senior {{in my feed/on my radar}} — nice.
-Popped up in my feed as a fellow dev — decided to connect.
-Just expanding my network {{with fellow devs/in the Java space}}.
-Your profile came up {{in my suggestions/as a recommended connection}}.
-Noticed we share {{quite a few connections/the same Java communities}}.
-Hey, always appreciate {{seeing seasoned devs/familiar faces}} around here.
-Hello, saw you're deep into the {{JVM ecosystem/backend architecture}} too.
-Connecting with {{local Java devs/folks from the industry}}.
+Hey, hope you're doing well. Saw you're also in the Java ecosystem {{banging out code/building cool stuff}}.
+Hi there! Another Java senior {{in my feed/on my radar}} — nice. Hope your week is going smoothly.
+Greetings! Popped up in my feed as a fellow dev — decided to connect. I'm impressed by {{your experience/the projects you've worked on}}.
+Hi, trust you're doing great. Your profile came up {{in my suggestions/as a recommended connection}}, and as a fellow Java dev, I had to reach out.
+Good morning/afternoon! {{Hope you're having a good week/Trust things are well with you}}. Noticed we share {{quite a few connections/the same Java communities}}.
+Hi, hope all is good on your end. Connecting with {{local Java devs/folks from the industry}} like yourself is what I value here.
+Hey there! I came across your profile and was impressed by your background.
+Hi, hope you're having a productive week. Just expanding my network with solid people, and your profile stood out.
+Hello! Noticed you're deep into the {{JVM ecosystem/backend architecture}} too — always great to see familiar tech stacks.
+Hey, hope this finds you well. Saw we're both navigating the Java world — figured I'd reach out.
+Hi there, hope you're doing well. Another backend engineer {{in my feed/on my radar}} — thought I'd say hello.
+Hello, hope you're doing great. Popped up in my suggestions and I appreciate connecting with people who work with {{the Java/similar tools}}.
+Hey, trust you're doing well. Noticed we move in similar circles — decided to connect.
+Hi! Came across your profile and thought it'd be great to connect with another {{Java expert/senior engineer}}.
+Hey, hope all's well. Just circling through recommendations and saw a fellow dev doing interesting work.
 
 [part]
 Always good to have {{more Java folks/experienced devs}} around.
@@ -24,9 +30,10 @@ Better to know people {{before you need them/in the same boat}}.
 
 [part 0.3]
 Let's {{stay in touch/connect here}}. || 1
-Will be cool to {{follow your journey/see what you're up to}}. || 1
-Catch you {{in the feed/around}}. || 2
-{{Stay in touch/Keep in touch}}. || 1
 Hope you're doing well {{over there/with your projects}}. || 3
+Wishing you success with your current projects! || 3
+Best of luck with what you're building! || 3
 Best of luck with {{your work/the current projects}}. || 3
 Cheers, and {{keep up the good work/happy coding}}. || 3
+Appreciate the connection. || 2
+Solid add to my network — thanks. || 2
