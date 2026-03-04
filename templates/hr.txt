@@ -1,15 +1,13 @@
 #multi
 [part]
-Hey, {{Java senior/experienced backend dev}} here.
-{{Senior Java developer/Java architect}} here.
-Java {{backend engineer/developer}} reaching out.
-Just a {{Java dev/tech lead}} looking to connect.
+Hello, hope you're doing well! My name is Vladislav, a Java developer focused on high-load back-end systems.
+Hi, hope you're having a productive week. {{Senior Java developer/Java architect}} here.
+Hey, hope this finds you well. Java {{backend engineer/developer}} reaching out.
+Hello, hope you're doing great. Just a {{Java dev/tech lead}} looking to connect.
 Hello — {{Java specialist/software engineer}} on your radar.
-Hi there, {{backend engineer/JVM dev}} from the Java ecosystem.
-Greetings — {{seasoned Java developer/software craftsman}} here.
-Hey — {{Java enthusiast/backend specialist}} from the industry.
-Just another {{Java pro/tech person}} expanding the network.
-Hello from a {{fellow developer/Java backend engineer}}.
+Hey, hope all's well. {{backend engineer/JVM dev}} from the Java ecosystem.
+Hello, trust you're doing well. I'm Vladislav, developer, specializing in Java and microservice architecture.
+Good day! My name is [Name]. I code in Java and keep up with the modern back-end stack.
 
 [part]
 Let's connect to {{keep in touch/stay in the loop}} for future opportunities.
@@ -24,12 +22,12 @@ Just putting myself out there — {{in case/if ever}} something interesting cros
 Connecting proactively — {{better to connect now/never know}} when timing aligns.
 
 [part]
-Feel free to {{reach out/ping me}} if you have something relevant.
-Reach out {{anytime/whenever}} if you're hiring Java folks.
+If any interesting Java projects come up — I'd be happy to have a conversation. Best of luck.
+Thank you for your work and activity — it would be great to stay in touch.
+Feel free to {{reach out/ping me}} if you have something relevant. Thank you.
+Reach out {{anytime/whenever}} if you're hiring Java folks. Thanks.
 Just in case — {{my inbox is open/always happy to chat}}.
-Happy to {{hop on a call/connect further}} if anything aligns.
 Always open to {{interesting roles/hearing about opportunities}}.
 Let me know if you ever need {{a senior dev/Java expertise}}.
 {{DM's open/Happy to chat}} if something relevant comes up.
 Keep me in mind for {{future roles/senior positions}}.
-{{No pressure/Just connecting}} — we'll talk when the time is right.
